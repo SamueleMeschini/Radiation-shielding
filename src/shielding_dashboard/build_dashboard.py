@@ -5,9 +5,9 @@ from .materials import ROOT
 
 def build(dataset_path,output_path):
     data=validate(json.loads(Path(dataset_path).read_text()))
-    html=(ROOT/'dashboard/index.html').read_text();css=(ROOT/'dashboard/styles.css').read_text();js=(ROOT/'dashboard/app.js').read_text()
+    html=(ROOT/'dashboard/index.html').read_text();css=(ROOT/'dashboard/styles.css').read_text();js=(ROOT/'dashboard/app.js').read_text();katex_css=(ROOT/'dashboard/katex-lite.css').read_text();katex_js=(ROOT/'dashboard/katex-lite.js').read_text()
     blob=json.dumps(data,separators=(',',':')).replace('</','<\\/')
-    html=html.replace('<link rel="stylesheet" href="styles.css">','<style>'+css+'</style>')
-    html=html.replace('<script src="app.js"></script>','<script id="embedded-data" type="application/json">'+blob+'</script><script>'+js+'</script>')
+    html=html.replace('<link rel="stylesheet" href="katex-lite.css">','<style>'+katex_css+'</style>').replace('<link rel="stylesheet" href="styles.css">','<style>'+css+'</style>')
+    html=html.replace('<script src="katex-lite.js"></script><script src="app.js"></script>','<script>'+katex_js+'</script><script id="embedded-data" type="application/json">'+blob+'</script><script>'+js+'</script>')
     out=Path(output_path);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(html)
     return out
