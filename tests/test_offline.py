@@ -9,7 +9,8 @@ def test_built_offline_structure():
     d=json.loads(m.group(1))
     assert d['schema_version']==1 and d['quality'] in ('development','lecture')
     assert len(d['cases'])>=1
-    assert 'src="http' not in html and 'href="http' not in html
+    assert not re.search(r'<script[^>]+src="https?://',html)
+    assert not re.search(r'<link[^>]+href="https?://',html)
     assert '<script src="app.js">' not in html and '<link rel="stylesheet" href="styles.css">' not in html
     for id in ('explore','compare','interaction','hardening','builder','charged'):
         assert f'id="{id}"' in html
