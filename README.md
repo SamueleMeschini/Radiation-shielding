@@ -1,6 +1,6 @@
 # Shielding lab
 
-An offline teaching dashboard for photon transmission through an effectively infinite planar slab. The original runner and page are preserved under `data/development/legacy_runner.py` and `legacy_dashboard.html`; the root files now point to the replacement. `data.json` and `data/development/legacy_400_histories.json` preserve the old 400-history data. Invalid pilot outputs are quarantined under `data/development/rejected_cases/`. The new dashboard never calls OpenMC at lecture time.
+An offline teaching dashboard for photon transmission through an effectively infinite planar slab. The current dashboard is built from the versioned source under `dashboard/` and the processed simulation cases under `data/`. Invalid pilot outputs are quarantined under `data/development/rejected_cases/`. The dashboard never calls OpenMC at lecture time.
 
 ## Requirements and installation
 
