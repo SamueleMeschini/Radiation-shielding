@@ -21,7 +21,7 @@ def test_student_facing_labels_and_figures():
     visible=re.sub(r'<script.*?</script>','',html,flags=re.S|re.I)
     for forbidden in ('>01<','>02<','>03<','>04<','>05<','>06<','>07<','anchor','direct OpenMC point','Current curve data','Equal cm','Equal g/cm²','photon-number'):
         assert forbidden not in visible
-    assert 'Differential photon transmission' in html
+    assert 'Transmitted photon spectrum' in html
     assert 'rotate(-90' in html
     assert 'katex' in html.lower()
 
