@@ -1,0 +1,56 @@
+{
+  "water": {
+    "density": 1.0,
+    "composition": {
+      "H": 0.111894,
+      "O": 0.888106
+    },
+    "source": "NIST XCOM water; mass fractions retained from prototype"
+  },
+  "concrete": {
+    "density": 2.3,
+    "composition": {
+      "H": 0.01,
+      "C": 0.001,
+      "O": 0.529107,
+      "Na": 0.016,
+      "Mg": 0.002,
+      "Al": 0.033872,
+      "Si": 0.337021,
+      "K": 0.013,
+      "Ca": 0.044,
+      "Fe": 0.014
+    },
+    "source": "NIST STAR concrete, Portland, material 144; mass fractions retained from prototype"
+  },
+  "lead": {
+    "density": 11.34,
+    "composition": {
+      "Pb": 1.0
+    },
+    "source": "elemental lead"
+  },
+  "pmma": {
+    "density": 1.19,
+    "composition": {
+      "C": 0.599848,
+      "H": 0.080541,
+      "O": 0.319611
+    },
+    "source": "C5H8O2 stoichiometry, NIST Chemistry WebBook"
+  },
+  "copper": {
+    "density": 8.96,
+    "composition": {
+      "Cu": 1.0
+    },
+    "source": "elemental copper"
+  },
+  "tin": {
+    "density": 7.31,
+    "composition": {
+      "Sn": 1.0
+    },
+    "source": "elemental tin"
+  }
+}

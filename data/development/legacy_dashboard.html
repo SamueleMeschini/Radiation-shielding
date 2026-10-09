@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photon Shielding Dashboard</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-2: #1f2937;
+        --ink: #e5e7eb;
+        --muted: #9ca3af;
+        --grid: rgba(148, 163, 184, 0.25);
+        --accent: #60a5fa;
+        --accent-2: #34d399;
+        --accent-3: #f59e0b;
+        --accent-4: #f472b6;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #020817, var(--bg));
+        color: var(--ink);
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 18px 48px;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(1.8rem, 2vw, 2.6rem);
+      }
+      .subtitle {
+        margin: 0 0 20px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-bottom: 20px;
+      }
+      .card {
+        background: rgba(17, 24, 39, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 14px;
+        padding: 16px 18px;
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.25);
+      }
+      label {
+        display: block;
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      select, input[type="range"] {
+        width: 100%;
+      }
+      select {
+        background: var(--panel-2);
+        color: var(--ink);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 1rem;
+      }
+      input[type="range"] {
+        accent-color: var(--accent);
+      }
+      .slider-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+      }
+      .slider-row strong {
+        font-size: 1.02rem;
+      }
+      .status {
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(96, 165, 250, 0.08);
+        border: 1px solid rgba(96, 165, 250, 0.2);
+        color: #dbeafe;
+        margin-top: 14px;
+        min-height: 44px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .stat {
+        background: rgba(17, 24, 39, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 12px;
+        padding: 14px 16px;
+      }
+      .stat .small {
+        color: var(--muted);
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .stat strong {
+        font-size: clamp(1.05rem, 1.4vw, 1.5rem);
+      }
+      .chart-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .chart-box {
+        background: rgba(17, 24, 39, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 14px;
+        padding: 14px 14px 8px;
+      }
+      .chart-box h3 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #e2e8f0;
+      }
+      .chart-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
+      .chart-heading h3 { margin: 0; }
+      .toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+      .toggle-label input { accent-color: var(--accent); }
+      svg {
+        display: block;
+        width: 100%;
+        height: 300px;
+        background: rgba(15, 23, 42, 0.75);
+        border-radius: 10px;
+      }
+      .legend {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-size: 0.82rem;
+        margin-top: 8px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      @media (max-width: 640px) {
+        .wrap { padding: 20px 12px 28px; }
+        svg { height: 240px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Photon Shielding Dashboard</h1>
+      <p class="subtitle">
+        OpenMC-generated transmission data for planar photon shielding. The dashboard compares the total transmitted current with the analytical uncollided attenuation reference <i>e<sup>−μx</sup></i>.
+      </p>
+
+      <div class="controls">
+        <div class="card">
+          <label for="materialSelect">Material</label>
+          <select id="materialSelect"></select>
+        </div>
+
+        <div class="card">
+          <label for="energySelect">Photon energy</label>
+          <select id="energySelect"></select>
+        </div>
+
+        <div class="card">
+          <label for="thicknessSlider">Shield thickness</label>
+          <div class="slider-row">
+            <input id="thicknessSlider" type="range" min="0" max="1" step="0.01" value="0" />
+            <strong id="thicknessValue">0.00 cm</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="status" id="statusText">Loading data…</div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="small">Total transmission</span>
+          <strong id="TValue">--</strong>
+        </div>
+        <div class="stat">
+          <span class="small">Uncollided reference</span>
+          <strong id="UValue">--</strong>
+        </div>
+        <div class="stat">
+          <span class="small">Buildup factor</span>
+          <strong id="BValue">--</strong>
+        </div>
+        <div class="stat">
+          <span class="small">Transmitted energy fraction</span>
+          <strong id="EtValue">--</strong>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-box">
+          <div class="chart-heading">
+            <h3>Transmission versus thickness</h3>
+            <label class="toggle-label" for="compareMaterials">
+              <input id="compareMaterials" type="checkbox" />
+              Compare all materials
+            </label>
+          </div>
+          <svg id="transmissionChart" viewBox="0 0 600 320" aria-label="Transmission chart"></svg>
+          <div class="legend" id="transmissionLegend"></div>
+        </div>
+
+        <div class="chart-box">
+          <h3>Buildup factor versus thickness</h3>
+          <svg id="buildupChart" viewBox="0 0 600 320" aria-label="Buildup factor chart"></svg>
+          <div class="legend">
+            <span><i class="dot" style="background:#f59e0b"></i>Buildup factor</span>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <h3>Energy transmission fraction versus thickness</h3>
+          <svg id="energyChart" viewBox="0 0 600 320" aria-label="Energy transmission fraction chart"></svg>
+          <div class="legend">
+            <span><i class="dot" style="background:#f472b6"></i>Energy transmission fraction</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const state = { material: 'water', energy: 0.1, thickness: 0 };
+      let DATA = null;
+
+      function formatNumber(value, digits = 3) {
+        if (!Number.isFinite(value)) return 'n/a';
+        return Number(value).toLocaleString(undefined, {
+          maximumFractionDigits: digits,
+          minimumFractionDigits: digits
+        });
+      }
+
+      function energyKey(value) {
+        const target = Number(value);
+        const keys = Object.keys(DATA.materials[state.material].cases);
+        const match = keys.find(key => Number(key) === target);
+        if (match) return match;
+
+        const normalized = keys.find(key => Math.abs(Number(key) - target) < 1e-12);
+        return normalized || String(value);
+      }
+
+      function getCase() {
+        return DATA.materials[state.material].cases[energyKey(state.energy)];
+      }
+
+      function interpolateLogLinear(x, xs, ys) {
+        const safeY = ys.map(v => Math.max(v, 1e-12));
+        const logs = safeY.map(v => Math.log(v));
+        if (x <= xs[0]) return safeY[0];
+        if (x >= xs[xs.length - 1]) return safeY[safeY.length - 1];
+        for (let i = 0; i < xs.length - 1; i++) {
+          const x0 = xs[i];
+          const x1 = xs[i + 1];
+          if (x >= x0 && x <= x1) {
+            const t = (x - x0) / (x1 - x0);
+            return Math.exp(logs[i] + t * (logs[i + 1] - logs[i]));
+          }
+        }
+        return safeY[safeY.length - 1];
+      }
+
+      function setSelections() {
+        const materialSelect = document.getElementById('materialSelect');
+        materialSelect.innerHTML = Object.keys(DATA.materials)
+          .map(name => `<option value="${name}">${name}</option>`)
+          .join('');
+        materialSelect.value = state.material;
+
+        const energySelect = document.getElementById('energySelect');
+        energySelect.innerHTML = DATA.E.map(e => `<option value="${e}">${e} MeV</option>`).join('');
+        energySelect.value = String(state.energy);
+      }
+
+      function updateSliderBounds() {
+        const caseData = getCase();
+        const xs = caseData.x;
+        const maxX = xs[xs.length - 1];
+        const slider = document.getElementById('thicknessSlider');
+        slider.min = '0';
+        slider.max = String(maxX);
+        slider.step = '0.01';
+        if (state.thickness > maxX) state.thickness = maxX;
+        slider.value = String(state.thickness);
+      }
+
+      function updateDisplay() {
+        const caseData = getCase();
+        const x = state.thickness;
+        const mu = caseData.mu;
+        const total = interpolateLogLinear(x, caseData.x, caseData.T);
+        const uncollided = Math.exp(-mu * x);
+        const buildup = total / uncollided;
+        const energyFrac = interpolateLogLinear(x, caseData.x, caseData.Et);
+
+        const xs = caseData.x;
+        const nearest = xs.reduce((best, val) => Math.abs(val - x) < Math.abs(best - x) ? val : best, xs[0]);
+        const status = (Math.abs(nearest - x) < 1e-3)
+          ? 'Simulated point in the OpenMC dataset'
+          : 'Interpolated between simulated points using log-linear thickness interpolation';
+
+        document.getElementById('thicknessValue').textContent = `${formatNumber(x, 2)} cm`;
+        document.getElementById('statusText').textContent = `${status} · material: ${state.material} · energy: ${state.energy} MeV`;
+        document.getElementById('TValue').textContent = formatNumber(total, 3);
+        document.getElementById('UValue').textContent = formatNumber(uncollided, 3);
+        document.getElementById('BValue').textContent = formatNumber(buildup, 3);
+        document.getElementById('EtValue').textContent = formatNumber(energyFrac, 3);
+
+        drawTransmissionChart(caseData, x);
+        drawMetricChart(caseData, x, 'buildup');
+        drawMetricChart(caseData, x, 'energy');
+      }
+
+      function drawTransmissionChart(caseData, xCurrent) {
+        const svg = document.getElementById('transmissionChart');
+        const width = 600, height = 320;
+        const pad = { top: 18, right: 24, bottom: 42, left: 52 };
+        const materials = Object.keys(DATA.materials);
+        const compare = document.getElementById('compareMaterials').checked;
+        const plottedMaterials = compare ? materials : [state.material];
+        const colors = { water: '#60a5fa', concrete: '#f59e0b', lead: '#f472b6' };
+        const maxX = Math.max(...plottedMaterials.map(name => {
+          const curve = DATA.materials[name].cases[energyKeyFor(name, state.energy)];
+          return curve.x[curve.x.length - 1];
+        }));
+        const yMax = Math.max(1.0, ...plottedMaterials.flatMap(name =>
+          DATA.materials[name].cases[energyKeyFor(name, state.energy)].T
+        ));
+        const xScale = (v) => pad.left + (v / maxX) * (width - pad.left - pad.right);
+        const yScale = (v) => height - pad.bottom - (v / yMax) * (height - pad.top - pad.bottom);
+
+        const lines = [];
+        const grid = [];
+        for (let i = 0; i <= 5; i++) {
+          const y = (yMax / 5) * i;
+          const yPx = yScale(y);
+          grid.push(`<line x1="${pad.left}" x2="${width - pad.right}" y1="${yPx}" y2="${yPx}" stroke="rgba(148,163,184,0.25)" stroke-width="1" />`);
+          grid.push(`<text x="${pad.left - 10}" y="${yPx + 4}" font-size="11" fill="#94a3b8" text-anchor="end">${formatNumber(y, 2)}</text>`);
+        }
+        for (let i = 0; i <= 5; i++) {
+          const x = (maxX / 5) * i;
+          const xPx = xScale(x);
+          grid.push(`<line x1="${xPx}" x2="${xPx}" y1="${pad.top}" y2="${height - pad.bottom}" stroke="rgba(148,163,184,0.18)" stroke-width="1" />`);
+          grid.push(`<text x="${xPx}" y="${height - 18}" font-size="11" fill="#94a3b8" text-anchor="middle">${formatNumber(x, 1)}</text>`);
+        }
+
+        for (const name of plottedMaterials) {
+          const curve = DATA.materials[name].cases[energyKeyFor(name, state.energy)];
+          const path = curve.x.map((value, index) =>
+            `${index === 0 ? 'M' : 'L'} ${xScale(value)} ${yScale(curve.T[index])}`
+          ).join(' ');
+          lines.push(`<path d="${path}" fill="none" stroke="${colors[name]}" stroke-width="2.5" />`);
+          for (let i = 0; i < curve.x.length; i++) {
+            const error = curve.s[i];
+            const yTop = yScale(Math.min(yMax, curve.T[i] + error));
+            const yBottom = yScale(Math.max(0, curve.T[i] - error));
+            lines.push(`<line x1="${xScale(curve.x[i])}" x2="${xScale(curve.x[i])}" y1="${yTop}" y2="${yBottom}" stroke="${colors[name]}" stroke-width="1.1" />`);
+            lines.push(`<circle cx="${xScale(curve.x[i])}" cy="${yScale(curve.T[i])}" r="3.5" fill="${colors[name]}" />`);
+          }
+        }
+
+        const uncollidedCurve = Array.from({ length: 80 }, (_, i) => {
+          const value = (maxX * i) / 79;
+          return { x: value, y: Math.exp(-caseData.mu * value) };
+        });
+        const pathUncollided = uncollidedCurve.map((pt, idx) =>
+          `${idx === 0 ? 'M' : 'L'} ${xScale(pt.x)} ${yScale(pt.y)}`
+        ).join(' ');
+        lines.push(`<path d="${pathUncollided}" fill="none" stroke="#34d399" stroke-width="2" stroke-dasharray="6 5" />`);
+
+        const currentX = xScale(xCurrent);
+        const currentYPos = yScale(interpolateLogLinear(xCurrent, caseData.x, caseData.T));
+        lines.push(`<line x1="${currentX}" x2="${currentX}" y1="${pad.top}" y2="${height - pad.bottom}" stroke="rgba(245,158,11,0.7)" stroke-dasharray="6 6" />`);
+        lines.push(`<circle cx="${currentX}" cy="${currentYPos}" r="5.5" fill="#f59e0b" stroke="#fff" stroke-width="1.2" />`);
+
+        svg.innerHTML = `
+          ${grid.join('')}
+          <line x1="${pad.left}" x2="${width - pad.right}" y1="${height - pad.bottom}" y2="${height - pad.bottom}" stroke="#cbd5e1" stroke-width="1.2"/>
+          <line x1="${pad.left}" x2="${pad.left}" y1="${pad.top}" y2="${height - pad.bottom}" stroke="#cbd5e1" stroke-width="1.2"/>
+          <text x="${width / 2}" y="${height - 4}" text-anchor="middle" font-size="12" fill="#cbd5e1">Thickness (cm)</text>
+          <text x="18" y="20" font-size="12" fill="#cbd5e1" transform="rotate(-90 18 20)" text-anchor="middle">Transmission</text>
+          ${lines.join('')}
+        `;
+        document.getElementById('transmissionLegend').innerHTML = [
+          ...plottedMaterials.map(name => `<span><i class="dot" style="background:${colors[name]}"></i>${name} OpenMC total</span>`),
+          `<span><i class="dot" style="background:#34d399"></i>${state.material} uncollided reference</span>`,
+          '<span><i class="dot" style="background:#f59e0b"></i>Current point</span>'
+        ].join('');
+      }
+
+      function energyKeyFor(material, value) {
+        const target = Number(value);
+        const keys = Object.keys(DATA.materials[material].cases);
+        return keys.find(key => Number(key) === target) || String(value);
+      }
+
+      function drawMetricChart(caseData, xCurrent, metric) {
+        const isBuildup = metric === 'buildup';
+        const svg = document.getElementById(isBuildup ? 'buildupChart' : 'energyChart');
+        const width = 600, height = 320;
+        const pad = { top: 18, right: 22, bottom: 42, left: 52 };
+        const xs = caseData.x;
+        const maxX = xs[xs.length - 1];
+        const xScale = (v) => pad.left + (v / maxX) * (width - pad.left - pad.right);
+        const values = isBuildup
+          ? caseData.x.map((value, index) => caseData.T[index] / Math.exp(-caseData.mu * value))
+          : caseData.Et;
+        const yMax = isBuildup ? Math.max(1.2, ...values) * 1.08 : 1.0;
+        const yScale = (v) => height - pad.bottom - (v / yMax) * (height - pad.top - pad.bottom);
+
+        const curve = Array.from({ length: 80 }, (_, i) => {
+          const x = (maxX * i) / 79;
+          const y = isBuildup
+            ? interpolateLogLinear(x, xs, caseData.T) / Math.exp(-caseData.mu * x)
+            : interpolateLogLinear(x, xs, caseData.Et);
+          return { x, y };
+        });
+
+        const path = curve.map((point, index) =>
+          `${index === 0 ? 'M' : 'L'} ${xScale(point.x)} ${yScale(point.y)}`
+        ).join(' ');
+        const currentValue = isBuildup
+          ? interpolateLogLinear(xCurrent, xs, caseData.T) / Math.exp(-caseData.mu * xCurrent)
+          : interpolateLogLinear(xCurrent, xs, caseData.Et);
+        const color = isBuildup ? '#f59e0b' : '#f472b6';
+        const currentX = xScale(xCurrent);
+
+        const grid = [];
+        for (let i = 0; i <= 5; i++) {
+          const y = (yMax / 5) * i;
+          const yPx = yScale(y);
+          grid.push(`<line x1="${pad.left}" x2="${width - pad.right}" y1="${yPx}" y2="${yPx}" stroke="rgba(148,163,184,0.25)" stroke-width="1" />`);
+          grid.push(`<text x="${pad.left - 10}" y="${yPx + 4}" font-size="11" fill="#94a3b8" text-anchor="end">${formatNumber(y, 2)}</text>`);
+        }
+        for (let i = 0; i <= 5; i++) {
+          const x = (maxX / 5) * i;
+          const xPx = xScale(x);
+          grid.push(`<line x1="${xPx}" x2="${xPx}" y1="${pad.top}" y2="${height - pad.bottom}" stroke="rgba(148,163,184,0.18)" stroke-width="1" />`);
+          grid.push(`<text x="${xPx}" y="${height - 18}" font-size="11" fill="#94a3b8" text-anchor="middle">${formatNumber(x, 1)}</text>`);
+        }
+
+        svg.innerHTML = `
+          ${grid.join('')}
+          <line x1="${pad.left}" x2="${width - pad.right}" y1="${height - pad.bottom}" y2="${height - pad.bottom}" stroke="#cbd5e1" stroke-width="1.2"/>
+          <line x1="${pad.left}" x2="${pad.left}" y1="${pad.top}" y2="${height - pad.bottom}" stroke="#cbd5e1" stroke-width="1.2"/>
+          <text x="${width / 2}" y="${height - 4}" text-anchor="middle" font-size="12" fill="#cbd5e1">Thickness (cm)</text>
+          <text x="18" y="20" font-size="12" fill="#cbd5e1" transform="rotate(-90 18 20)" text-anchor="middle">${isBuildup ? 'Buildup factor' : 'Energy fraction'}</text>
+          <path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" />
+          <line x1="${currentX}" x2="${currentX}" y1="${pad.top}" y2="${height - pad.bottom}" stroke="rgba(255,255,255,0.5)" stroke-dasharray="6 6" />
+          <circle cx="${currentX}" cy="${yScale(currentValue)}" r="5" fill="${color}" />
+        `;
+      }
+
+      function initialize() {
+        const materialSelect = document.getElementById('materialSelect');
+        const energySelect = document.getElementById('energySelect');
+        const thicknessSlider = document.getElementById('thicknessSlider');
+        document.getElementById('compareMaterials').addEventListener('change', () => updateDisplay());
+
+        materialSelect.addEventListener('change', (event) => {
+          state.material = event.target.value;
+          state.energy = Number(DATA.E[0]);
+          energySelect.value = String(state.energy);
+          const caseData = getCase();
+          state.thickness = caseData.x[0];
+          updateSliderBounds();
+          updateDisplay();
+        });
+
+        energySelect.addEventListener('change', (event) => {
+          state.energy = Number(event.target.value);
+          const caseData = getCase();
+          state.thickness = caseData.x[0];
+          updateSliderBounds();
+          updateDisplay();
+        });
+
+        thicknessSlider.addEventListener('input', (event) => {
+          state.thickness = Number(event.target.value);
+          updateDisplay();
+        });
+
+        setSelections();
+        const initialCase = getCase();
+        state.thickness = initialCase.x[0];
+        updateSliderBounds();
+        updateDisplay();
+      }
+
+      fetch('data.json')
+        .then(response => response.json())
+        .then(data => {
+          DATA = data;
+          initialize();
+        })
+        .catch(error => {
+          document.getElementById('statusText').textContent = 'Unable to load data.json. Start a local web server from this folder and reload the page.';
+          console.error(error);
+        });
+    </script>
+  </body>
+</html>

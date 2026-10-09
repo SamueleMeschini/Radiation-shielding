@@ -1,0 +1,58 @@
+{
+  "lead_only": {
+    "label": "Pb only",
+    "energy_MeV": 0.661657,
+    "layers": [
+      [
+        "lead",
+        0.1
+      ]
+    ]
+  },
+  "pb_sn_cu": {
+    "label": "Pb \u2192 Sn \u2192 Cu",
+    "energy_MeV": 0.661657,
+    "layers": [
+      [
+        "lead",
+        0.1
+      ],
+      [
+        "tin",
+        0.1
+      ],
+      [
+        "copper",
+        0.1
+      ]
+    ]
+  },
+  "cu_sn_pb": {
+    "label": "Cu \u2192 Sn \u2192 Pb",
+    "energy_MeV": 0.661657,
+    "layers": [
+      [
+        "copper",
+        0.1
+      ],
+      [
+        "tin",
+        0.1
+      ],
+      [
+        "lead",
+        0.1
+      ]
+    ]
+  },
+  "equal_mass_copper": {
+    "label": "Equal areal density Cu",
+    "energy_MeV": 0.661657,
+    "layers": [
+      [
+        "copper",
+        0.30814732142857143
+      ]
+    ]
+  }
+}

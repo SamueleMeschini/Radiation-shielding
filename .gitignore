@@ -1,0 +1,23 @@
+# Python tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.venv/
+
+# Local editor and operating-system settings
+.vscode/
+.DS_Store
+
+# OpenMC data libraries and generated local manifest
+# Obtain a compatible library separately and pass it with --cross-sections.
+endfb-viii.1-hdf5/
+data/library/
+
+# Transient OpenMC statepoints, logs, and rejected pilot output.
+data/*/cases/work/
+data/*/validation/work/
+data/development/rejected_cases/
+
+# Local lecture runs are intentionally not versioned.
+data/lecture/

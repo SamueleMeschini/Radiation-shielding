@@ -1,0 +1,50 @@
+{
+  "mono": {
+    "label": "Monoenergetic",
+    "lines": []
+  },
+  "cs137": {
+    "label": "Cs-137 661.657 keV",
+    "lines": [
+      [
+        0.661657,
+        1.0
+      ]
+    ]
+  },
+  "co60": {
+    "label": "Co-60 two lines",
+    "lines": [
+      [
+        1.173228,
+        0.5
+      ],
+      [
+        1.332492,
+        0.5
+      ]
+    ]
+  },
+  "tl208": {
+    "label": "Tl-208 2.614511 MeV",
+    "lines": [
+      [
+        2.614511,
+        1.0
+      ]
+    ]
+  },
+  "hardening": {
+    "label": "Equal photons 0.100 / 1.000 MeV",
+    "lines": [
+      [
+        0.1,
+        0.5
+      ],
+      [
+        1.0,
+        0.5
+      ]
+    ]
+  }
+}

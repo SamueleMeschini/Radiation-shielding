@@ -1,0 +1,21 @@
+# Physics model
+
+## Geometry and tallies
+
+A finite 10 cm × 10 cm transverse simulation cell has specularly reflective lateral boundaries, which tile an effectively infinite homogeneous slab for a uniform, normally incident source. The source starts 10⁻⁶ cm inside the upstream vacuum face. The downstream vacuum face is a +x-oriented `XPlane`; OpenMC's surface `current` tally is signed and its outward crossings are positive. A photon `ParticleFilter` excludes other particles. The incident current is one source photon per history by construction, so the downstream photon-number current is Tₙ per emitted source photon. The energy-weighted current uses an `EnergyFunctionFilter` whose response is outgoing energy in eV; divided by incident monoenergetic energy, it gives Tₑ. An outgoing-energy-filtered `current` tally records the full spectrum with uncertainty. It is not an interaction-history decomposition. Source uniformity and reflective sides are appropriate for the prescribed infinite broad slab; the reflective side approximation should be revisited for finite shields.
+
+Photon transport and atomic relaxation are enabled; OpenMC enables relaxation by default with photon transport. The principal dataset uses `electron_treatment="ttb"`. TTB produces approximate bremsstrahlung at the charged-particle birth site; LED deposits secondary charged-particle energy locally. Neither option constitutes general condensed-history electron or alpha transport. The charged-particle lab is analytical/data-driven.
+
+Photon interactions are summed from the same HDF5 photon library used for transport. In OpenMC 0.15.3 the verified reaction MTs are 502 coherent, 504 incoherent, 522 photoelectric, 515 pair production in electron field, and 517 pair production in nuclear field. Both pair terms are combined. For a compound, μ = Σ(element atom density × microscopic cross section). The total mass coefficient is μ/ρ. The displayed first-interaction probability is μⱼ/μtotal, not a final-history fraction.
+
+## Equations and coordinates
+
+Physical thickness x is in cm; areal density mA = ρx in g/cm²; optical thickness τ = μx = (μ/ρ)mA in mean free paths. The uncollided reference is exp(−τ). HVL = ln2/μ; TVL = ln10/μ. For layers, Tunc = exp[−Σμᵢxᵢ], independent of order. The total transmitted spectrum can depend on order through scattering, fluorescence, and other secondary photons.
+
+Tₙ = JN,out/JN,in; Tₑ = JE,out/(E₀JN,in); mean outgoing energy = E₀Tₑ/Tₙ. Bₙ = Tₙ/Tunc and Bₑ = Tₑ/Tunc are **current buildup ratios for this geometry**, not universal buildup factors. Zero thickness has exactly Tₙ = Tₑ = Bₙ = Bₑ = 1. No Monte Carlo case runs at zero thickness.
+
+At a thickness between positive endpoint transmissions, ln T is linearly interpolated in x, and (σ/T)² is approximated by the quadrature of weighted endpoint relative uncertainties. There is no extrapolation, material interpolation, or energy interpolation. Unresolved zero-event values are null, never physical zero. For source lines with photon weights summing to one, number current is ΣwᵢTₙ,ᵢ, energy transmission is ΣwᵢEᵢTₑ,ᵢ/ΣwᵢEᵢ, and mean transmitted energy is ΣwᵢEᵢTₑ,ᵢ/ΣwᵢTₙ,ᵢ. Independent monoenergetic run uncertainties are combined in quadrature. Source activity is not displayed.
+
+Compton kinematics uses electron rest energy 0.51099895 MeV: E′ = E/[1+(E/mec²)(1−cosθ)], Te=E−E′. Te,max=2E²/(mec²+2E); E′π=E/[1+2E/mec²]. The pair-production threshold is 1.0219979 MeV and available lepton kinetic energy is approximately Eγ−1.0219979 MeV, neglecting nuclear recoil. At θ=0 the photon is indistinguishable from an uncollided photon experimentally.
+
+For hardening, μeff on [x₁,x₂] = −ln[I(x₂)/I(x₁)]/(x₂−x₁), with the ratio describing incremental transmission. I(x₂)/I(0) is cumulative transmission. The charged-particle tab describes Rm=∫dE/(S/ρ), R=Rm/ρ and an approximate beta bremsstrahlung screening expression; local NIST ESTAR/ASTAR tables are integrated numerically from their first tabulated energy, using the NIST CSDA range at that energy as the low-energy anchor. Radiative electron energy fraction is estimated by integrating Srad/(Scol+Srad). ASTAR concrete is not available in this local selection. No absorbed or equivalent dose is computed.
