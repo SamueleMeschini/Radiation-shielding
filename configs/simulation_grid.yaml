@@ -75,7 +75,7 @@
       "copper",
       "tin"
     ],
-    "particles": 10000,
+    "particles": 100000,
     "batches": 20,
     "max_histories": 2000000
   }
