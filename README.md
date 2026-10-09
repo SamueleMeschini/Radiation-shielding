@@ -52,6 +52,3 @@ python3 -m http.server 8000 --directory dashboard
 
 Then open <http://localhost:8000>. The development source uses dashboard/data.json; the published Pages site uses the lecture dataset embedded in the standalone build.
 
-## For instructors and contributors
-
-The physics notes, data provenance, and teaching notes are in [docs/](docs/). The repository also contains the scripts used to process simulation cases and rebuild the standalone file. Cross-section libraries and simulation working files are intentionally kept out of the repository.
