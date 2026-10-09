@@ -26,6 +26,7 @@ jobs:
 
       - name: Prepare site
         run: |
+          python scripts/build_dashboard.py
           cp dist/shielding_dashboard.html dist/index.html
           touch dist/.nojekyll
 
